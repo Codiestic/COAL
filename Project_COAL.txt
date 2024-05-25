@@ -1,0 +1,137 @@
+; Program Description: Scientific Calculator using irvine32.lib
+; Author: Shayan Faisal - Alian Rafiq
+; Creation Date: 01/03/2024
+; Revisions: 
+; Date: 01/03/2024     Modified by: Shayan Faisal, Alian Rafiq 
+
+.386
+.model flat,stdcall
+.stack 4096
+INCLUDE irvine32.inc
+ExitProcess PROTO, dwExitCode:DWORD
+
+.data
+    a REAL4 ?
+    b REAL4 ?
+    result REAL4 ?
+    message1 BYTE "Enter the first number: ", 0
+    message2 BYTE "Enter the second number: ", 0
+    menu BYTE "Choose an operation: +, -, *, /, s (square root), p (power): ", 0
+    choice BYTE ?
+
+.code
+main PROC
+    call displayMenu
+    call getChoice
+
+    ; Read first number
+    mov edx, OFFSET message1
+    call WriteString
+    call ReadFloat
+    fstp a
+
+    ; If not square root, read second number
+    mov al, choice
+    cmp al, 's'
+    je skipSecondInput
+
+    mov edx, OFFSET message2
+    call WriteString
+    call ReadFloat
+    fstp b
+
+skipSecondInput:
+    ; Perform the chosen operation
+    cmp al, '+'
+    je addition
+    cmp al, '-'
+    je subtraction
+    cmp al, '*'
+    je multiplication
+    cmp al, '/'
+    je division
+    cmp al, 's'
+    je squareRoot
+    cmp al, 'p'
+    je power
+
+    ; End program if invalid choice
+    jmp endProgram
+
+addition:
+    fld a
+    fadd b
+    fstp result
+    jmp displayResult
+
+subtraction:
+    fld a
+    fsub b
+    fstp result
+    jmp displayResult
+
+multiplication:
+    fld a
+    fmul b
+    fstp result
+    jmp displayResult
+
+division:
+    fld a
+    fdiv b
+    fstp result
+    jmp displayResult
+
+squareRoot:
+    fld a
+    fsqrt
+    fstp result
+    jmp displayResult
+
+power:
+    fld1
+    fld a
+    fld b
+    fyl2x
+    fld st(0)
+    frndint
+    fsub st(1), st(0)
+    fxch st(1)
+    f2xm1
+    fld1
+    fadd
+    fscale
+    fstp st(1)
+    fstp result
+    jmp displayResult
+
+displayResult:
+    ; Display the result
+    call Crlf
+    mov edx, OFFSET result
+    call WriteFloat
+    call Crlf
+    jmp main
+
+displayMenu PROC
+    ; Display menu message
+    mov edx, OFFSET menu
+    call WriteString
+    call Crlf
+    ret
+displayMenu ENDP
+
+getChoice PROC
+    ; Read user's choice
+    call ReadChar
+    mov choice, al
+    ret
+getChoice ENDP
+
+endProgram:
+    ; Exit the program
+    call Crlf
+    exit
+
+main ENDP
+END main
