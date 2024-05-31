@@ -24,13 +24,12 @@ main PROC
     call displayMenu
     call getChoice
 
-    ; Read first number
+
     mov edx, OFFSET message1
     call WriteString
     call ReadFloat
     fstp a
 
-    ; If not square root, read second number
     mov al, choice
     cmp al, 's'
     je skipSecondInput
@@ -41,7 +40,7 @@ main PROC
     fstp b
 
 skipSecondInput:
-    ; Perform the chosen operation
+
     cmp al, '+'
     je addition
     cmp al, '-'
@@ -55,7 +54,6 @@ skipSecondInput:
     cmp al, 'p'
     je power
 
-    ; End program if invalid choice
     jmp endProgram
 
 addition:
@@ -88,6 +86,7 @@ squareRoot:
     fstp result
     jmp displayResult
 
+;Used AI for this
 power:
     fld1
     fld a
@@ -106,7 +105,7 @@ power:
     jmp displayResult
 
 displayResult:
-    ; Display the result
+
     call Crlf
     mov edx, OFFSET result
     call WriteFloat
@@ -114,7 +113,7 @@ displayResult:
     jmp main
 
 displayMenu PROC
-    ; Display menu message
+
     mov edx, OFFSET menu
     call WriteString
     call Crlf
@@ -122,14 +121,14 @@ displayMenu PROC
 displayMenu ENDP
 
 getChoice PROC
-    ; Read user's choice
+
     call ReadChar
     mov choice, al
     ret
 getChoice ENDP
 
 endProgram:
-    ; Exit the program
+
     call Crlf
     exit
 
