@@ -1,0 +1,148 @@
+; Program Description: Scientific Calculator
+; Author: Shayan Faisal, Alian Rafiq
+; Creation Date: 01/03/2024
+; Revisions: 
+; Date: 01/03/2024
+
+;Using FPU Stack for real numbers and precision
+
+.386
+.model flat,stdcall
+.stack 4096
+INCLUDE irvine32.inc
+ExitProcess PROTO, dwExitCode:DWORD
+
+.data
+Maths STRUCT
+    a REAL4 ?
+    b REAL4 ?
+    result REAL4 ?
+    choice BYTE ?
+Maths ENDS
+
+maths1 Maths <>
+
+message1 BYTE "Enter the first number: ", 0
+message2 BYTE "Enter the second number: ", 0
+menu BYTE "Choose an operation: +, -, *, /, s (square root), p (power), e (exit): ", 0
+invalidChoiceMsg BYTE "Invalid choice! Please choose a valid operation.", 0
+
+.code
+main PROC
+
+mainLoop:
+    call displayMenu
+    call getChoice
+
+    mov al, maths1.choice
+    cmp al, 'e'
+    je endProgram
+
+    mov edx, OFFSET message1
+    call WriteString
+    call ReadFloat
+    fstp maths1.a
+
+    cmp al, 's'
+    je skipSecondInput
+
+    mov edx, OFFSET message2
+    call WriteString
+    call ReadFloat
+    fstp maths1.b
+
+skipSecondInput:
+    cmp al, '+'
+    je addition
+    cmp al, '-'
+    je subtraction
+    cmp al, '*'
+    je multiplication
+    cmp al, '/'
+    je division
+    cmp al, 's'
+    je squareRoot
+    cmp al, 'p'
+    je power
+
+    mov edx, OFFSET invalidChoiceMsg
+    call WriteString
+    call Crlf
+    jmp mainLoop
+
+addition:
+    fld maths1.a
+    fadd maths1.b
+    fstp maths1.result
+    jmp displayResult
+
+subtraction:
+    fld maths1.a
+    fsub maths1.b
+    fstp maths1.result
+    jmp displayResult
+
+multiplication:
+    fld maths1.a
+    fmul maths1.b
+    fstp maths1.result
+    jmp displayResult
+
+division:
+    fld maths1.a
+    fld maths1.b
+    fdiv
+    fstp maths1.result
+    jmp displayResult
+
+squareRoot:
+    fld maths1.a
+    fsqrt
+    fstp maths1.result
+    jmp displayResult
+
+;Used AI for this one
+power:
+    fld maths1.b       ; Load b (exponent)
+    fld maths1.a       ; Load a (base)
+    fyl2x              ; Compute b * log2(a)
+    fld st(0)          ; Duplicate the result
+    frndint            ; Round to an integer
+    fsub st(1), st(0)  ; Subtract integer part
+    fxch st(1)         ; Exchange st(0) and st(1)
+    f2xm1              ; Compute 2^x - 1
+    fld1               ; Load 1
+    fadd               ; Compute 2^x
+    fscale             ; Scale by 2^st(1)
+    fstp st(1)         ; Pop st(1)
+    fstp maths1.result ; Store the result
+    jmp displayResult
+
+displayResult:
+    call Crlf
+    fld maths1.result
+    call WriteFloat
+    call Crlf
+    jmp mainLoop
+
+displayMenu PROC
+    mov edx, OFFSET menu
+    call WriteString
+    call Crlf
+    ret
+displayMenu ENDP
+
+getChoice PROC
+    call ReadChar
+    call writeChar
+    call crlf
+    mov maths1.choice, al
+    ret
+getChoice ENDP
+
+endProgram:
+    call Crlf
+    exit
+
+main ENDP
+END main
