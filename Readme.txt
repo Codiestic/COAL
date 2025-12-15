@@ -3,4 +3,5 @@ This is a semester project under the supervision of Mr. Muhammad Usman, Instruct
 The project has been designed by two group members:
 Muhammad Shayan Faisal & Alian Rafiq
 
-The project is a prototype of a scientific calculator with basic math calculations and power operator and additionaly, the square root. 
+
+The project is a prototype of a scientific calculator with basic math calculations and power operator and additionaly, the square root, all using the irvine32.lib in Assembly language
